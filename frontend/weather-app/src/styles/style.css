@@ -1,0 +1,126 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #ff9966, #ff5e62); /* Пример градиента от одного цвета к другому */
+    background-size: cover; /* Обеспечивает масштабирование фона так, чтобы он полностью покрывал контент */
+    background-position: center; /* Центрирует фон */
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  header, footer {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    position: sticky; /* Прижимает к верхней части окна браузера */
+    top: 0; /* Отступ сверху */
+    z-index: 100; /* Устанавливает порядок слоев, чтобы header был поверх других элементов */
+  }
+  
+  footer {
+    position: sticky; /* Прижимает к нижней части окна браузера */
+    bottom: 0; /* Отступ снизу */
+  }
+  
+  .search-bar {
+    display: flex;
+    justify-content: center; /* Центрирует содержимое по горизонтали */
+    align-items: center; /* Центрирует содержимое по вертикали */
+    gap: 10px; /* Расстояние между элементами */
+  }
+  
+ 
+  .search-bar input[type="text"] {
+    width: 200px; /* Ширина поля ввода */
+    height: 40px; /* Высота поля ввода */
+    padding: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  
+  .search-bar button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    width: 80px; /* Ширина кнопки */
+    height: 60px; /* Высота кнопки */
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .search-bar{
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Расположение элементов по вертикали */
+    gap: 20px; /* Расстояние между элементами */
+    margin-bottom: 10px; /* Отступ снизу */
+    margin-left:  10px; 
+  }
+
+  .search-bar {
+    margin-top: 20px; /* Adjust based on your design */
+  }
+
+  .container-details {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .location-info,
+  .current-conditions {
+    margin-bottom: 30px;
+  }
+  
+  h3 {
+    color: #666;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  
+  p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+
+  @media (max-width: 768px) {
+    .container-details {
+      padding: 15px;
+    }
+  
+    .title {
+      font-size: 24px;
+    }
+  
+    .location-info,
+    .current-conditions {
+      margin-bottom: 20px;
+    }
+  
+    h3 {
+      font-size: 18px;
+    }
+  
+    p {
+      font-size: 14px;
+    }
+  }
