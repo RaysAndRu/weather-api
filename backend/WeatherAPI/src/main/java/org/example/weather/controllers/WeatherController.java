@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.apache.logging.log4j.core.util.internal.LastModifiedSource;
 import org.example.weather.models.WeatherData;
 
 import org.example.weather.services.WeatherService;
@@ -109,6 +110,8 @@ public class WeatherController {
                         .header("Cache-Control", "max-age=1200, must-revalidate")
                         .header("Access-Control-Allow-Origin", "*")
                         .header("ETag", String.valueOf(System.identityHashCode(data)))
+                        .header("X-Content-Type-Options", "nosniff")
+                        .header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
                         .contentType(MediaType.APPLICATION_JSON)
                         .contentLength(data.toString().getBytes().length)
                         .body(data));
