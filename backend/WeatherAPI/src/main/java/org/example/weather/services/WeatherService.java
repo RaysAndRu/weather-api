@@ -15,6 +15,8 @@ import org.example.weather.models.WeatherData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -106,11 +108,13 @@ public class WeatherService {
                 .uri(url)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
-                        Mono.error(new RuntimeException("Request failed with status: " + clientResponse.statusCode())))
+                        Mono.error(new HttpClientErrorException("Request failed with status: 400" , clientResponse.statusCode()  ,clientResponse.toString()   , null, null, null)))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse ->
+                        Mono.error(new HttpServerErrorException("Server error occurred", clientResponse.statusCode(),  clientResponse.toString(), null, null, null)))
                 .bodyToMono(Map.class)
                 .map(this::convertToWeatherData)
                 .flatMap(weatherData -> weatherCache.put(city, weatherData, Duration.ofMinutes(60))
-                        .thenReturn(weatherData)) // Ensure data is returned after put
+                        .thenReturn(weatherData))
                 .doOnNext(data -> logger.info("Data has been pushed in cache: " + data));
     }
 
