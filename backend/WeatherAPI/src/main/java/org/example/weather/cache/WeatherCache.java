@@ -1,6 +1,8 @@
 package org.example.weather.cache;
 
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.weather.models.WeatherData;
@@ -70,5 +72,17 @@ public class WeatherCache {
                 .doOnSuccess(v -> logger.info("Data has been pushed to cache: " + key))
                 .then(Mono.just(true))
                 .doOnError(e -> logger.error("Error adding data to cache: " + e.getMessage()));
+    }
+
+    @PreDestroy
+    private void destroyCache() {
+        logger.info("Connection cache refused");
+        redisTemplate.getConnectionFactory().getReactiveConnection()
+                .close();
+    }
+
+    @PostConstruct
+    private void initCache() {
+        logger.info("Connection cache established");
     }
 }

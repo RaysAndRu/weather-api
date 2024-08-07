@@ -1,6 +1,12 @@
 package org.example.weather.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +49,9 @@ import java.util.Map;
 public class WeatherService {
 
     @Autowired
+    MeterRegistry meterRegistry;
+
+    @Autowired
     WebClient webClient;
 
     @Autowired
@@ -69,19 +78,25 @@ public class WeatherService {
      * @throws RuntimeException if there is an error during the data retrieval process.
      */
     public Mono<WeatherData> getWeather(String city) {
+        meterRegistry.gauge( "weather_request_active_count",  Tags.of("request", "waiting "),  0L);
         logger.info("Fetching weather data for: " + city);
         return weatherCache.get(city)
                 .flatMap(data -> {
                     if (!data.isEmpty()) {
+                        meterRegistry.gauge("weather_request_count", Tags.of("request", "cached "), -1L);
                         return Mono.just(data)
                                 .doOnNext(log ->  logger.info("Returning cached weather data for city: " + city));
                     } else {
+                        meterRegistry.gauge("weather_request_count", Tags.of("request", "fetching "), 1L);
                         logger.info("No cached data found for city: " + city + ", fetching from service.");
                         return fetchFromService(city)
                                 .doOnNext(log ->  logger.info("Returning cached weather data for city: " + city));
                     }
                 })
-                .doOnError(e -> logger.error("Failed to fetch weather data for {}: {}", city, e.getMessage()))
+                .doOnError(e ->{
+                        logger.error("Failed to fetch weather data for {}: {}", city, e.getMessage());
+                        meterRegistry.gauge("weather_request_count",  Tags.of("request", "error "), -1L);
+                  })
                 .doOnNext(data -> logger.info("Data : " + data));
     }
 
@@ -97,10 +112,10 @@ public class WeatherService {
      *
      * @param city The name of the city for which to fetch the weather data. Must be a non-null, non-empty string.
      * @return A {@link Mono<WeatherData>} that emits the {@link WeatherData} object retrieved from the API and cached in
-     *         Redis. The Mono will complete normally if the data is successfully fetched and cached, or it will propagate
-     *         an error if something goes wrong.
-     * @throws RuntimeException if the HTTP request to the API fails with a 4xx status code or if there is an error
+     *         Redis. The Mono will complete normally if the data is successfully fetched and cached
+     * @throws HttpClientErrorException if the HTTP request to the API fails with a 5xx status code or if there is an error
      *                           during data conversion or caching.
+     * @throws HttpServerErrorException
      */
     public Mono<WeatherData> fetchFromService(String city) {
         String url = "http://api.weatherapi.com/v1/current.json?key=" + token + "&q=" + city;
@@ -141,5 +156,11 @@ public class WeatherService {
         currentWeather.setCondition(condition);
         logger.info("JSON has been parsed");
         return new WeatherData(location, currentWeather);
+    }
+
+    @PostConstruct
+    private void init() {
+        logger.info("Weather service started");
+        meterRegistry.gauge( "weather_request_active_count",  Tags.of("request", "waiting "),  0L);
     }
 }

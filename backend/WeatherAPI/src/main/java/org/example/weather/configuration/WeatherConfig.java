@@ -10,6 +10,5 @@ public class WeatherConfig {
     @Bean
     public String weatherToken() {
          //API token from https://www.weatherapi.com/
-        return "YOUR_API_TOKEN";
     }
 }

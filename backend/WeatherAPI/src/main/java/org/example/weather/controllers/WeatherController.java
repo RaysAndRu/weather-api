@@ -98,6 +98,12 @@ public class WeatherController {
             }
 
     )
+    /**
+     * Fetch weather data for the specified city.
+     *
+     * @param city The name of the city for which to fetch weather data.
+     * @return A {@link ResponseEntity} containing the weather data if found.
+     */
     @GetMapping("/getWeather/{city}")
     public Mono<ResponseEntity<WeatherData>> getWeather(@PathVariable String city) {
         return weatherService.getWeather(city)
